@@ -3,11 +3,11 @@
 all: plan apply
 
 plan:
-	terraform plan -var-file terraform.tfvars -out terraform.tfplan
+	~/experiments/ccore/bin/terraform plan -var-file terraform.tfvars -out terraform.tfplan
 
 apply:
-	terraform apply -var-file terraform.tfvars
+	~/experiments/ccore/bin/terraform apply -var-file terraform.tfvars
 
 destroy:
-	terraform plan -destroy -var-file terraform.tfvars -out terraform.tfplan
-	terraform apply terraform.tfplan
+	~/experiments/ccore/bin/terraform plan -destroy -var-file terraform.tfvars -out terraform.tfplan
+	~/experiments/ccore/bin/terraform apply terraform.tfplan
