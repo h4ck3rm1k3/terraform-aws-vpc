@@ -45,7 +45,8 @@ resource "aws_instance" "nat" {
  	key_name = "${var.aws_key_name}"
  	#security_groups = ["${aws_security_group.nat.id}"]
 	vpc_security_group_ids = [ "${aws_security_group.nat.id}" ]
- 	subnet_id = "${aws_subnet.us-east-1c-public.id}"
+ 
+	subnet_id = "${aws_subnet.us-east-1c-public.id}"
  	#	associate_public_ip_address = true
  	source_dest_check = false
 
@@ -80,12 +81,12 @@ resource "aws_subnet" "us-east-1d-public" {
 
 resource "aws_route_table" "us-east-1-public" {
     tags {  Name = "terraform-v1"    }
-	vpc_id = "${aws_vpc.default.id}"
+    vpc_id = "${aws_vpc.default.id}"
 
 	route {
-		cidr_block = "0.0.0.0/0"
-		gateway_id = "${aws_internet_gateway.default.id}"
-	}
+	    cidr_block = "0.0.0.0/0"
+	    gateway_id = "${aws_internet_gateway.default.id}"
+    }
 }
 
 resource "aws_route_table_association" "us-east-1c-public" {
@@ -137,16 +138,17 @@ resource "aws_network_interface" "eth0" {
 
 }
 
-resource "aws_route_table" "us-east-1-private" {
+resource "aws_route_table" "us-east-1-private" 
+{
     tags {  Name = "terraform-v1"    }
     vpc_id = "${aws_vpc.default.id}"
-	
-	route {
-	    cidr_block = "0.0.0.0/0"
-		#		gatewayId, natGatewayId, networkInterfaceId, vpcPeeringConnectionId or instanceId
-		network_interface_id =	"${aws_network_interface.eth0.id}"
-		#	#instance_id = "${aws_instance.nat.id}"
-    }
+    
+    route {
+	cidr_block = "0.0.0.0/0"
+	    #		gatewayId, natGatewayId, networkInterfaceId, vpcPeeringConnectionId or instanceId
+	    network_interface_id =	"${aws_network_interface.eth0.id}"
+	    #	#instance_id = "${aws_instance.nat.id}"
+}
 }
 
 resource "aws_route_table_association" "us-east-1c-private" {
