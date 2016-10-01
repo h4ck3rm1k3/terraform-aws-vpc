@@ -6,18 +6,18 @@ provider "aws" {
 
 resource "aws_vpc" "default" {
     cidr_block = "10.0.0.0/16"
-    tags {  Name = "terraform-v1"    }
+	tags {  Name = "terraform-v1"    }
 }
 
 resource "aws_internet_gateway" "default" {
     vpc_id = "${aws_vpc.default.id}"
-		tags {  Name = "terraform-v1"    }
+	tags {  Name = "terraform-v1"    }
 }
 
 # NAT instance
 
 resource "aws_security_group" "nat" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	name = "nat"
 	description = "Allow services from the private subnet through NAT"
 
@@ -38,12 +38,13 @@ resource "aws_security_group" "nat" {
 }
 
 resource "aws_instance" "nat" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
  	ami = "${var.aws_nat_ami}"
  	availability_zone = "us-east-1c"
  	instance_type = "t2.nano"
  	key_name = "${var.aws_key_name}"
- 	security_groups = ["${aws_security_group.nat.id}"]
+ 	#security_groups = ["${aws_security_group.nat.id}"]
+	vpc_security_group_ids = [ "${aws_security_group.nat.id}" ]
  	subnet_id = "${aws_subnet.us-east-1c-public.id}"
  	#	associate_public_ip_address = true
  	source_dest_check = false
@@ -60,7 +61,7 @@ resource "aws_instance" "nat" {
 # Public subnets
 
 resource "aws_subnet" "us-east-1c-public" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	vpc_id = "${aws_vpc.default.id}"
 
 	cidr_block = "10.0.0.0/24"
@@ -68,7 +69,7 @@ resource "aws_subnet" "us-east-1c-public" {
 }
 
 resource "aws_subnet" "us-east-1d-public" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	vpc_id = "${aws_vpc.default.id}"
 
 	cidr_block = "10.0.2.0/24"
@@ -78,7 +79,7 @@ resource "aws_subnet" "us-east-1d-public" {
 # Routing table for public subnets
 
 resource "aws_route_table" "us-east-1-public" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	vpc_id = "${aws_vpc.default.id}"
 
 	route {
@@ -109,7 +110,7 @@ resource "aws_subnet" "us-east-1c-private" {
 }
 
 resource "aws_subnet" "us-east-1d-private" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	vpc_id = "${aws_vpc.default.id}"
 
 	cidr_block = "10.0.3.0/24"
@@ -118,11 +119,12 @@ resource "aws_subnet" "us-east-1d-private" {
 
 # Routing table for private subnets
 resource "aws_network_interface" "eth0" {
-#    	tags {  Name = "terraform-v1"    }
+    tags {  Name = "terraform-v1"    }
 	 # "${aws_network_interface.eth0}"
     subnet_id = "${aws_subnet.us-east-1c-public.id}"
     private_ips = ["10.0.0.50"]
-    security_groups = ["${aws_security_group.nat.id}"]
+    #security_groups = ["${aws_security_group.nat.id}"]
+    #vpc_security_group_ids = [ "${aws_security_group.nat.id}" ]
     # attachment {
     #         instance = "${aws_instance.test.id}"
     #     device_index = 1
@@ -136,15 +138,15 @@ resource "aws_network_interface" "eth0" {
 }
 
 resource "aws_route_table" "us-east-1-private" {
-#    	tags {  Name = "terraform-v1"    }
-	vpc_id = "${aws_vpc.default.id}"
-
+    tags {  Name = "terraform-v1"    }
+    vpc_id = "${aws_vpc.default.id}"
+	
 	route {
-		cidr_block = "0.0.0.0/0"
+	    cidr_block = "0.0.0.0/0"
 		#		gatewayId, natGatewayId, networkInterfaceId, vpcPeeringConnectionId or instanceId
 		network_interface_id =	"${aws_network_interface.eth0.id}"
-	#	#instance_id = "${aws_instance.nat.id}"
-	}
+		#	#instance_id = "${aws_instance.nat.id}"
+    }
 }
 
 resource "aws_route_table_association" "us-east-1c-private" {
